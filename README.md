@@ -1,6 +1,6 @@
 # multi-master-merge
 
-A document database with multi master replication and merge support
+A database with multi master replication and merge support
 based on [leveldb](https://github.com/rvagg/node-levelup), [fwdb](https://github.com/substack/fwdb) and [scuttleup](https://github.com/mafintosh/scuttleup)
 
 ```
@@ -15,9 +15,9 @@ npm install multi-master-merge
 var mmm = require('multi-master-merge')
 var level = require('level')
 
-var mdb = mmm(level('data.db'))
+var mdb = mmm(level('data.db'), {encoding:'utf-8'})
 
-mdb.put('hello', {hello:'world'}, function(err, doc) {
+mdb.put('hello', 'world', function(err, doc) {
   console.log('Inserted:', doc)
   mdb.get('hello', function(err, docs) {
     console.log('"hello" contains the following:', docs)
@@ -47,12 +47,12 @@ If two databases inserts a document on the same key both of them will be
 present if you do a `mdb.get(key)`
 
 ``` js
-a.put('hello', {hello:'a'})
-b.put('hello', {hello:'b'})
+a.put('hello', 'a')
+b.put('hello', 'b')
 
 setTimeout(function() {
   a.get('hello', function(err, docs) {
-    console.log(docs) // will print [{hello:'a'}, {hello:'b'}]
+    console.log(docs) // will print [{peer:..., value:'a'}, {peer:..., value:'b'}]
   })
 }, 1000) // wait a bit for the inserts to replicate
 ```
@@ -64,7 +64,7 @@ If we consider the above replication scenario we have two documents for the key 
 
 ``` js
 a.get('hello', function(err, docs) {
-  console.log(docs) // will print [{hello:'a'}, {hello:'b'}]
+  console.log(docs) // will print [{peer:..., value:'a'}, {peer:..., value:'b'}]
 })
 ```
 
@@ -72,7 +72,7 @@ To merge them into a single document do
 
 ``` js
 a.get('hello', function(err, docs) {
-  a.merge('hello', docs, {hello:'a + b'})
+  a.merge('hello', docs, 'a + b')
 })
 ```
 
@@ -81,7 +81,7 @@ Merges will replicate as well
 ``` js
 // wait a bit for a to replicate to b
 b.get('hello', function(err, docs) {
-  console.log(docs) // will print [{hello:'a + b'}]
+  console.log(docs) // will print [{peer:..., value:'a + b'}]
 })
 ```
 
@@ -94,28 +94,25 @@ Options can include
 
 ``` js
 {
- id: peerId, // defaults to a cuid
- preupdate: function(logData, cb) {},  // set a preupdate hook
- postupdate: function(logData, cb) {} // set a postupdate hook
+  id: peerId, // defaults to a cuid
+  encoding: 'json' | 'utf-8' | 'binary', // the value encoding. defaults to binary
+  preupdate: function(logData, cb) {},  // set a preupdate hook
+  postupdate: function(logData, cb) {} // set a postupdate hook
 }
 ```
 
-#### mdb.put(key, document, [cb])
+#### mdb.put(key, doc, [cb])
 
 Insert a new document. Callback is called with `cb(err, doc)` where doc is the inserted document.
 
 #### mdb.get(key, cb)
 
-Get documents stored on `key`. Callback is called with `cb(err, documents)`.
+Get documents stored on `key`. Callback is called with `cb(err, docs)`.
 
 #### mdb.createReadStream([options])
 
-Get a stream of all `{key:key, value:documents}` pair in the database.
+Get a stream of all `{key:key, peer:peer, seq:seq, value:docs}` pair in the database.
 You can pass in `gt`,`gte`,`lt`,`lte` options similar to levelup.
-
-### mdb.createValueStream([options])
-
-Similar to `createReadStream` but only returns values
 
 ### mdb.createKeyStream([options])
 
