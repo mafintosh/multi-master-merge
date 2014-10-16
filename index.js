@@ -103,8 +103,10 @@ var create = function(db) {
     var prev = [].concat(opts.prev || [])
 
     log.append(messages.Entry.encode({key:key, value:value, prev:prev}), cb && function(err, change) {
-      if (err || head >= change.seq) return cb(err)
-      cbs[change.seq] = cb
+      if (err) return cb(err)
+      val._id = change.peer+'@'+change.seq
+      if (head >= change.seq) return cb(null, val)
+      cbs[change.seq] = function() { cb(null, val) }
     })
   }
 
