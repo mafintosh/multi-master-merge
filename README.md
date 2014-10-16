@@ -114,7 +114,7 @@ Get documents stored on `key`. Callback is called with `cb(err, docs)`.
 Get a stream of all `{key:key, peer:peer, seq:seq, value:docs}` pair in the database.
 You can pass in `gt`,`gte`,`lt`,`lte` options similar to levelup.
 
-### mdb.createKeyStream([options])
+#### mdb.createKeyStream([options])
 
 Similar to `createReadSTream` but only returns keys
 
