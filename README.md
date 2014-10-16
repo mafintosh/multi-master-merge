@@ -90,7 +90,16 @@ b.get('hello', function(err, docs) {
 #### var mdb = mmm(db, [options])
 
 Create a new database. `db` is a levelup instance.
-Set `options.id` if you want to explicitly give this database a replication id. Otherwise a [cuid](https://github.com/dilvie/cuid) is used.
+Options can include
+
+``` js
+{
+ id: peerId, // defaults to a cuid
+ preupdate: function(logData, cb) {},  // set a preupdate hook
+ postupdate: function(logData, cb) {} // set a postupdate hook
+}
+```
+
 
 #### mdb.put(key, document, [cb])
 
