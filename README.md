@@ -100,7 +100,6 @@ Options can include
 }
 ```
 
-
 #### mdb.put(key, document, [cb])
 
 Insert a new document. Callback is called with `cb(err, doc)` where doc is the inserted document.
