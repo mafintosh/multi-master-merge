@@ -9,6 +9,7 @@
     "fwdb": "^1.0.1",
     "level-sublevel": "^6.3.15",
     "protocol-buffers": "^2.4.0",
+    "scuttleup": "^3.1.0",
     "through2": "^0.6.3"
   },
   "devDependencies": {
