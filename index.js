@@ -6,6 +6,7 @@ var after = require('after-all')
 var concat = require('concat-stream')
 var protobuf = require('protocol-buffers')
 var fs = require('fs')
+var encoders = require('./encoders')
 
 var messages = protobuf(fs.readFileSync(__dirname+'/schema.proto'))
 
@@ -46,6 +47,7 @@ var create = function(db, opts) {
 
   var preupdate = opts.preupdate || next
   var postupdate = opts.postupdate || next
+  var enc = encoders(opts.valueEncoding || opts.encoding)
 
   var head = 0
   var cbs = {}
@@ -56,7 +58,6 @@ var create = function(db, opts) {
 
   var index = function(data, enc, cb) {
     var entry = data.entry = messages.Entry.decode(data.entry)
-    var id = data.peer+'@'+data.seq
     var key = entry.key
 
     preupdate(data, function(err) {
@@ -79,7 +80,7 @@ var create = function(db, opts) {
 
         fdb.create({
           key: key,
-          hash: id,
+          hash: data.peer+'@'+data.seq,
           prev: heads
         }, function(err) {
           if (err) return cb(err)
@@ -116,34 +117,29 @@ var create = function(db, opts) {
 
   that.merge = function(key, list, val, cb) {
     var prev = [].concat(list).map(function(doc) {
-      return doc._id
+      return doc.peer+'@'+doc.seq
     })
 
     that.put(key, val, {prev:prev}, cb)
   }
 
   that.createKeyStream = function(opts) {
-    if (!opts) opts = {}
-    opts.keys = true
-    opts.values = false
-    return this.createReadStream(opts)
-  }
-
-  that.createValueStream = function(opts) {
-    if (!opts) opts = {}
-    opts.keys = false
-    opts.values = true
-    return this.createReadStream(opts)
+    var keys = fdb.keys(opts)
+    var fmt = through.obj(function(data, enc, cb) {
+      cb(null, data.key)
+    })
+    return link(keys, fmt)
   }
 
   that.createReadStream = function(opts) {
+    var combine = opts && opts.combine
     var keys = fdb.keys(opts)
     var fmt = through.obj(function(data, enc, cb) {
-      if (opts.keys && !opts.values) return cb(null, data.key)
-      that.get(data.key, function(err, docs) {
+      that.get(data.key, opts, function(err, docs) {
         if (err) return cb(err)
-        if (opts.values && !opts.keys) return cb(null, docs)
-        cb(null, {key:data.key, value:docs})
+        if (combine) return cb(null, docs)
+        for (var i = 0; i < docs.length; i++) fmt.push(docs[i])
+        cb()
       })
     })
     return link(keys, fmt)
@@ -152,20 +148,24 @@ var create = function(db, opts) {
   that.put = function(key, val, opts, cb) {
     if (typeof opts === 'function') return that.put(key, val, null, opts)
     if (!opts) opts = {}
-    if (typeof val !== 'object') val = {data:val}
 
-    var value = JSON.stringify(val)
     var prev = [].concat(opts.prev || [])
+    var e = opts.encoding ? encoders(opts.encoding) : enc
 
-    log.append(messages.Entry.encode({key:key, value:value, prev:prev}), cb && function(err, change) {
+    log.append(messages.Entry.encode({key:key, value:e.encode(val), prev:prev}), cb && function(err, change) {
       if (err) return cb(err)
-      val._id = change.peer+'@'+change.seq
-      if (head >= change.seq) return cb(null, val)
-      cbs[change.seq] = function() { cb(null, val) }
+      var inserted = {peer:change.peer, seq:change.seq, key:key, value:val}
+      if (head >= change.seq) return cb(null, inserted)
+      cbs[change.seq] = function() { cb(null, inserted) }
     })
   }
 
-  that.get = function(key, cb) {
+  that.get = function(key, opts, cb) {
+    if (typeof opts === 'function') return that.get(key, null, opts)
+    if (!opts) opts = {}
+
+    var e = opts.encoding ? encoders(opts.encoding) : enc
+
     fdb.heads(key, function(err, heads) {
       if (err) return cb(err)
 
@@ -179,13 +179,22 @@ var create = function(db, opts) {
         var n = next()
         var parts = split(val.hash)
 
+        if (opts.data === false) {
+          list.push({peer:parts[0], seq:parts[1], key:key})
+          return n()
+        }
+
         log.entry(parts[0], parts[1], function(err, entry) {
           if (err) return n(err)
 
           entry = messages.Entry.decode(entry)
-          var value = JSON.parse(entry.value)
-          value._id = val.hash
-          list.push(value)
+          list.push({
+            peer: parts[0],
+            seq: parts[1],
+            key: key,
+            value: e.decode(entry.value)
+          })
+
           n()
         })
       })
