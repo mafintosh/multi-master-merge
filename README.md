@@ -108,6 +108,19 @@ Insert a new document. Callback is called with `cb(err, doc)` where doc is the i
 
 Get documents stored on `key`. Callback is called with `cb(err, documents)`.
 
+#### mdb.createReadStream([options])
+
+Get a stream of all `{key:key, value:documents}` pair in the database.
+You can pass in `gt`,`gte`,`lt`,`lte` options similar to levelup.
+
+### mdb.createValueStream([options])
+
+Similar to `createReadStream` but only returns values
+
+### mdb.createKeyStream([options])
+
+Similar to `createReadSTream` but only returns keys
+
 #### mdb.merge(key, docs, newDoc, [cb])
 
 Merge multiple documents into a new document. Callback is called with `cb(err, doc)` where doc is the inserted merged document.
@@ -117,7 +130,6 @@ Merge multiple documents into a new document. Callback is called with `cb(err, d
 Returns a replication stream that can be piped to another `mdb` instance to replicate between them.
 Per defaults changes are replicated both ways. If you only want to push changes to another instance set
 `{mode: 'push'}` and if you only want to get changes do `{mode: 'pull'}`
-
 
 #### mdb.fwdb
 

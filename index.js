@@ -25,6 +25,16 @@ var next = function(data, cb) {
   cb()
 }
 
+var link = function(a, b) {
+  b.on('close', function() {
+    a.destroy()
+  })
+  a.on('error', function(err) {
+    b.emit('error', err)
+  })
+  return a.pipe(b)
+}
+
 var create = function(db, opts) {
   if (!opts) opts = {}
 
@@ -110,6 +120,33 @@ var create = function(db, opts) {
     })
 
     that.put(key, val, {prev:prev}, cb)
+  }
+
+  that.createKeyStream = function(opts) {
+    if (!opts) opts = {}
+    opts.keys = true
+    opts.values = false
+    return this.createReadStream(opts)
+  }
+
+  that.createValueStream = function(opts) {
+    if (!opts) opts = {}
+    opts.keys = false
+    opts.values = true
+    return this.createReadStream(opts)
+  }
+
+  that.createReadStream = function(opts) {
+    var keys = fdb.keys(opts)
+    var fmt = through.obj(function(data, enc, cb) {
+      if (opts.keys && !opts.values) return cb(null, data.key)
+      that.get(data.key, function(err, docs) {
+        if (err) return cb(err)
+        if (opts.values && !opts.keys) return cb(null, docs)
+        cb(null, {key:data.key, value:docs})
+      })
+    })
+    return link(keys, fmt)
   }
 
   that.put = function(key, val, opts, cb) {
