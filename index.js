@@ -57,10 +57,11 @@ var create = function(db, opts) {
   }
 
   var index = function(data, enc, cb) {
-    var entry = data.entry = messages.Entry.decode(data.entry)
+    var entry = messages.Entry.decode(data.entry)
     var key = entry.key
+    var d = postupdate !== next || preupdate !== next ? {peer:data.peer, seq:data.seq, key:key, value:enc.decode(entry)} : null
 
-    preupdate(data, function(err) {
+    preupdate(d, function(err) {
       if (err) return cb(err)
 
       fdb.heads(key, function(err, heads) {
@@ -85,7 +86,7 @@ var create = function(db, opts) {
         }, function(err) {
           if (err) return cb(err)
           seqs.put(data.peer, ''+data.seq, function() {
-            postupdate(data, function(err) {
+            postupdate(d, function(err) {
               if (data.peer === log.id) call(head = data.seq)
               cb(err)
             })
