@@ -87,9 +87,10 @@ b.get('hello', function(err, docs) {
 
 ## API
 
-#### var mdb = mmm(db)
+#### var mdb = mmm(db, [options])
 
 Create a new database. `db` is a levelup instance.
+Set `options.id` if you want to explicitly give this database a replication id. Otherwise a [cuid](https://github.com/dilvie/cuid) is used.
 
 #### mdb.put(key, document, [cb])
 
@@ -103,11 +104,20 @@ Get documents stored on `key`. Callback is called with `cb(err, documents)`.
 
 Merge multiple documents into a new document. Callback is called with `cb(err, doc)` where doc is the inserted merged document.
 
-#### mdb.sync([options])
+#### var stream = mdb.sync([options])
 
 Returns a replication stream that can be piped to another `mdb` instance to replicate between them.
 Per defaults changes are replicated both ways. If you only want to push changes to another instance set
 `{mode: 'push'}` and if you only want to get changes do `{mode: 'pull'}`
+
+
+#### mdb.fwdb
+
+The used fwdb instance
+
+#### mdb.log
+
+The used scuttleup instance
 
 ## License
 
