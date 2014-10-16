@@ -3,7 +3,7 @@ var mmm = require('../')
 var level = require('level-test')('multi-master-merge')
 
 var create = function() {
-  return mmm(level())
+  return mmm(level(), {encoding:'json'})
 }
 
 tape('put + get', function(t) {
@@ -14,7 +14,7 @@ tape('put + get', function(t) {
     db.get('hello', function(err, docs) {
       t.ok(!err, 'no err')
       t.same(docs.length, 1)
-      t.same(docs[0].hello, 'world')
+      t.same(docs[0].value.hello, 'world')
       t.end()
     })
   })
@@ -29,7 +29,7 @@ tape('put + get twice', function(t) {
       db.get('hello', function(err, docs) {
         t.ok(!err, 'no err')
         t.same(docs.length, 1)
-        t.same(docs[0].hello, 'world')
+        t.same(docs[0].value.hello, 'world')
         t.end()
       })
     })

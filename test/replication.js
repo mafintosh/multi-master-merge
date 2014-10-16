@@ -3,7 +3,7 @@ var tape = require('tape')
 var level = require('level-test')('replication')
 
 var create = function(name) {
-  return mmm(level(name))
+  return mmm(level(name), {encoding:'json'})
 }
 
 var replicate = function(a, b) {
@@ -23,7 +23,7 @@ tape('a to b', function(t) {
     setTimeout(function() {
       b.get('hello', function(err, docs) {
         t.same(docs.length, 1)
-        t.same(docs[0].hello, 'a')
+        t.same(docs[0].value.hello, 'a')
         t.end()
       })
     }, 200)
@@ -41,7 +41,7 @@ tape('a to b multi update', function(t) {
       setTimeout(function() {
         b.get('hello', function(err, docs) {
           t.same(docs.length, 2)
-          t.same([docs[0].hello, docs[1].hello].sort(), ['a', 'b'])
+          t.same([docs[0].value.hello, docs[1].value.hello].sort(), ['a', 'b'])
           t.end()
         })
       }, 200)
@@ -63,7 +63,7 @@ tape('a to b multi update + merge', function(t) {
           b.merge('hello', docs, {hello:'a + b'}, function() {
             b.get('hello', function(err, docs) {
               t.same(docs.length, 1)
-              t.same(docs[0].hello, 'a + b')
+              t.same(docs[0].value.hello, 'a + b')
               t.end()
             })
           })
@@ -87,7 +87,7 @@ tape('a to b multi update + merge + replicate', function(t) {
             setTimeout(function() {
               a.get('hello', function(err, docs) {
                 t.same(docs.length, 1)
-                t.same(docs[0].hello, 'a + b')
+                t.same(docs[0].value.hello, 'a + b')
                 t.end()
               })
             }, 200)
