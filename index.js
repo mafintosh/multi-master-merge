@@ -21,12 +21,12 @@ var toHead = function(data) {
   return {peer:data.key, seq:Number(data.value)}
 }
 
-var create = function(db) {
+var create = function(db, opts) {
   var subs = sublevel(db)
 
   var latest = subs.sublevel('latest')
   var seqs = subs.sublevel('seqs')
-  var log = scuttleup(subs.sublevel('log'))
+  var log = scuttleup(subs.sublevel('log'), opts)
   var fdb = fwdb(db) // sublevel blows up if we pass in a sublevel :(
 
   var head = 0
@@ -75,6 +75,10 @@ var create = function(db) {
   }))
 
   var that = {}
+
+  that.fwdb = fdb
+  that.log = log
+  that.db = db
 
   that.sync = function(opts) {
     return log.createReplicationStream(opts)
