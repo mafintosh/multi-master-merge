@@ -6,8 +6,9 @@ var after = require('after-all')
 var concat = require('concat-stream')
 var protobuf = require('protocol-buffers')
 var fs = require('fs')
+var path = require('path')
 
-var messages = protobuf(fs.readFileSync(__dirname+'/schema.proto'))
+var messages = protobuf(fs.readFileSync(path.join(__dirname, 'schema.proto')))
 
 var split = function(id) {
   var i = id.lastIndexOf('@')
