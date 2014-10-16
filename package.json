@@ -1,6 +1,6 @@
 {
   "name": "multi-master-merge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "LevelDB based database that supports merges and multi master replication",
   "main": "index.js",
   "dependencies": {
