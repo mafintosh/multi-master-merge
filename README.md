@@ -97,7 +97,7 @@ Insert a new document. Callback is called with `cb(err, doc)` where doc is the i
 
 Get documents stored on `key`. Callback is called with `cb(err, documents)`.
 
-### mdb.merge(key, docs, newDoc, [cb])
+#### mdb.merge(key, docs, newDoc, [cb])
 
 Merge multiple documents into a new document. Callback is called with `cb(err, doc)` where doc is the inserted merged document.
 
