@@ -83,6 +83,30 @@ b.get('hello', function(err, docs) {
 })
 ```
 
+## API
+
+#### var mdb = mmm(db)
+
+Create a new database. `db` is a levelup instance.
+
+#### mdb.put(key, document, [cb])
+
+Insert a new document. Callback is called with `cb(err, doc)` where doc is the inserted document.
+
+#### mdb.get(key, cb)
+
+Get documents stored on `key`. Callback is called with `cb(err, documents)`.
+
+### mdb.merge(key, docs, newDoc, [cb])
+
+Merge multiple documents into a new document. Callback is called with `cb(err, doc)` where doc is the inserted merged document.
+
+#### mdb.sync([options])
+
+Returns a replication stream that can be piped to another `mdb` instance to replicate between them.
+Per defaults changes are replicated both ways. If you only want to push changes to another instance set
+`{mode: 'push'}` and if you only want to get changes do `{mode: 'pull'}`
+
 ## License
 
 MIT
