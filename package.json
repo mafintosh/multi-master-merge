@@ -1,0 +1,39 @@
+{
+  "name": "multi-master-merge",
+  "version": "0.0.0",
+  "description": "Multi master database that supports merges and replication",
+  "main": "index.js",
+  "dependencies": {
+    "after-all": "^2.0.1",
+    "concat-stream": "^1.4.6",
+    "fwdb": "^1.0.1",
+    "level-sublevel": "^6.3.15",
+    "protocol-buffers": "^2.4.0",
+    "through2": "^0.6.3"
+  },
+  "devDependencies": {
+    "level": "^0.18.0",
+    "memdb": "^0.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/multi-master-merge"
+  },
+  "keywords": [
+    "multi",
+    "master",
+    "merge",
+    "db",
+    "level",
+    "replication"
+  ],
+  "author": "Mathias Buus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/multi-master-merge/issues"
+  },
+  "homepage": "https://github.com/mafintosh/multi-master-merge"
+}
