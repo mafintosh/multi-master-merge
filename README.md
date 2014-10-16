@@ -7,6 +7,8 @@ based on [leveldb](https://github.com/rvagg/node-levelup), [fwdb](https://github
 npm install multi-master-merge
 ```
 
+[![build status](http://img.shields.io/travis/mafintosh/multi-master-merge.svg?style=flat)](http://travis-ci.org/mafintosh/multi-master-merge)
+
 ## Usage
 
 ``` js
