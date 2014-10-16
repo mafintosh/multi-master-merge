@@ -21,13 +21,21 @@ var toHead = function(data) {
   return {peer:data.key, seq:Number(data.value)}
 }
 
-var create = function(db, opts) {
-  var subs = sublevel(db)
+var next = function(data, cb) {
+  cb()
+}
 
+var create = function(db, opts) {
+  if (!opts) opts = {}
+
+  var subs = sublevel(db)
   var latest = subs.sublevel('latest')
   var seqs = subs.sublevel('seqs')
   var log = scuttleup(subs.sublevel('log'), opts)
   var fdb = fwdb(db) // sublevel blows up if we pass in a sublevel :(
+
+  var preupdate = opts.preupdate || next
+  var postupdate = opts.postupdate || next
 
   var head = 0
   var cbs = {}
@@ -37,37 +45,43 @@ var create = function(db, opts) {
   }
 
   var index = function(data, enc, cb) {
-    var entry = messages.Entry.decode(data.entry)
+    var entry = data.entry = messages.Entry.decode(data.entry)
     var id = data.peer+'@'+data.seq
     var key = entry.key
 
-    fdb.heads(key, function(err, heads) {
+    preupdate(data, function(err) {
       if (err) return cb(err)
-      if (!heads) heads = []
 
-      heads = heads
-        .filter(function(h) {
-          var parts = split(h.hash)
-          return parts[0] === data.peer
-        })
-        .map(function(m) {
-          return m.hash
-        })
+      fdb.heads(key, function(err, heads) {
+        if (err) return cb(err)
+        if (!heads) heads = []
 
-      if (entry.prev) heads = heads.concat(entry.prev)
+        heads = heads
+          .filter(function(h) {
+            var parts = split(h.hash)
+            return parts[0] === data.peer
+          })
+          .map(function(m) {
+            return m.hash
+          })
 
-      fdb.create({
-        key: key,
-        hash: id,
-        prev: heads
-      }, function(err) {
-        seqs.put(data.peer, ''+data.seq, function() {
-          if (data.peer === log.id) call(head = data.seq)
-          cb(err)
+        if (entry.prev) heads = heads.concat(entry.prev)
+
+        fdb.create({
+          key: key,
+          hash: id,
+          prev: heads
+        }, function(err) {
+          if (err) return cb(err)
+          seqs.put(data.peer, ''+data.seq, function() {
+            postupdate(data, function(err) {
+              if (data.peer === log.id) call(head = data.seq)
+              cb(err)
+            })
+          })
         })
       })
     })
-
   }
 
   seqs.createReadStream().pipe(concat(function(head) {
