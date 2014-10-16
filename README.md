@@ -59,7 +59,7 @@ setTimeout(function() {
 
 ## Merging
 
-To combine multiple documents into a single one use `mdb.merge(key, docs, newDoc)`
+To combine multiple documents into a single one use `mdb.merge(key, docs, newValue)`
 If we consider the above replication scenario we have two documents for the key `hello`
 
 ``` js
@@ -101,7 +101,7 @@ Options can include
 }
 ```
 
-#### mdb.put(key, doc, [cb])
+#### mdb.put(key, value, [cb])
 
 Insert a new document. Callback is called with `cb(err, doc)` where doc is the inserted document.
 
@@ -118,7 +118,7 @@ You can pass in `gt`,`gte`,`lt`,`lte` options similar to levelup.
 
 Similar to `createReadSTream` but only returns keys
 
-#### mdb.merge(key, docs, newDoc, [cb])
+#### mdb.merge(key, docs, newValue, [cb])
 
 Merge multiple documents into a new document. Callback is called with `cb(err, doc)` where doc is the inserted merged document.
 
