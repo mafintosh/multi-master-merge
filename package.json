@@ -12,11 +12,11 @@
     "through2": "^0.6.3"
   },
   "devDependencies": {
-    "level": "^0.18.0",
-    "memdb": "^0.2.0"
+    "level-test": "^1.6.6",
+    "tape": "^3.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",
