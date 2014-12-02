@@ -35,3 +35,53 @@ tape('put + get twice', function(t) {
     })
   })
 })
+
+tape('read stream', function(t) {
+  var db = create()
+
+  db.put('hello', {hello: 'world'}, function(err) {
+    t.notOk(err)
+    db.put('hej', {hej: 'verden'}, function(err) {
+      t.notOk(err)
+
+      var i = 0
+      var strm = db.createReadStream()
+      strm.on('data', function(dta) {
+        if (++i === 1) {
+          t.equal(dta.value.hej, 'verden')
+          t.equal(dta.key, 'hej')
+        } else {
+          t.equal(dta.value.hello, 'world')
+          t.equal(dta.key, 'hello')
+        }
+      })
+      strm.on('end', function() {
+        t.end()
+      })
+    })
+  })
+})
+
+tape('value stream', function(t) {
+  var db = create()
+
+  db.put('hello', {hello: 'world'}, function(err) {
+    t.notOk(err)
+    db.put('hej', {hej: 'verden'}, function(err) {
+      t.notOk(err)
+
+      var i = 0
+      var strm = db.createValueStream()
+      strm.on('data', function(dta) {
+        if (++i === 1) {
+          t.equal(dta[0].hej, 'verden')
+        } else {
+          t.equal(dta[0].hello, 'world')
+        }
+      })
+      strm.on('end', function() {
+        t.end()
+      })
+    })
+  })
+})

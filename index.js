@@ -132,6 +132,19 @@ var create = function(db, opts) {
     return link(keys, fmt)
   }
 
+  that.createValueStream = function(opts) {
+    var keys = fdb.keys(opts)
+    var fmt = through.obj(function(data, enc, cb) {
+      that.get(data.key, opts, function(err, docs) {
+        if (err) return cb(err)
+        cb(null, docs.map(function(x) {
+          return x.value
+        }))
+      })
+    })
+    return link(keys, fmt)
+  }
+
   that.createReadStream = function(opts) {
     var combine = opts && opts.combine
     var keys = fdb.keys(opts)
