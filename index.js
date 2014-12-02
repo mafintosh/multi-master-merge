@@ -136,6 +136,7 @@ var create = function(db, opts) {
     var keys = fdb.keys(opts)
     var fmt = through.obj(function(data, enc, cb) {
       that.get(data.key, opts, function(err, docs) {
+        if (err) return cb(err)
         cb(null, docs.map(function(x) {
           return x.value
         }))
