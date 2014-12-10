@@ -85,3 +85,27 @@ tape('value stream', function(t) {
     })
   })
 })
+
+tape('key stream', function(t) {
+  var db = create()
+
+  db.put('hello', {hello: 'world'}, function(err) {
+    t.notOk(err)
+    db.put('hej', {hej: 'verden'}, function(err) {
+      t.notOk(err)
+
+      var i = 0
+      var strm = db.createKeyStream()
+      strm.on('data', function(dta) {
+        if (++i === 1) {
+          t.equal(dta, 'hej')
+        } else {
+          t.equal(dta, 'hello')
+        }
+      })
+      strm.on('end', function() {
+        t.end()
+      })
+    })
+  })
+})
