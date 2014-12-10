@@ -86,7 +86,7 @@ tape('value stream', function(t) {
   })
 })
 
-tape('value stream', function(t) {
+tape('key stream', function(t) {
   var db = create()
 
   db.put('hello', {hello: 'world'}, function(err) {
