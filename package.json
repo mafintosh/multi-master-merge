@@ -5,8 +5,9 @@
   "main": "index.js",
   "dependencies": {
     "after-all": "^2.0.1",
+    "brfs": "^1.4.0",
     "concat-stream": "^1.4.6",
-    "fwdb": "^1.0.1",
+    "fwdb": "^2.1.0",
     "level-sublevel": "^6.3.15",
     "protocol-buffers": "^2.4.0",
     "scuttleup": "^3.1.0",
@@ -18,6 +19,9 @@
   },
   "scripts": {
     "test": "tape test/*.js"
+  },
+  "browserify": {
+    "transform": ["brfs"]
   },
   "repository": {
     "type": "git",
