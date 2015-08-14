@@ -36,6 +36,27 @@ tape('put + get twice', function(t) {
   })
 })
 
+
+tape('postupdate + preupdate', function(t) {
+  var frompost, frompre, doc
+  var db = mmm(level(), {encoding:'json',
+    postupdate: function(d,cb) { frompost = d; cb() },
+    preupdate: function(d,cb) { frompre = d; cb() }
+  })
+
+  db.put('hello', doc = {hello:'world'}, function(err) {
+    t.ok(!err, 'no err')
+    t.ok(frompost, 'frompost defined')
+    t.ok(frompre, 'frompre defined')
+    t.ok(frompost.hasOwnProperty('seq') && frompost.hasOwnProperty('peer'), 'postupdate gives seq and peer')
+    t.ok(frompre.hasOwnProperty('seq') && frompre.hasOwnProperty('peer'), 'preupdate gives seq and peer')
+    t.deepEqual(doc, frompost.value)
+    t.deepEqual(doc, frompre.value)
+    t.end()
+  })
+})
+
+
 tape('read stream', function(t) {
   var db = create()
 
