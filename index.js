@@ -56,10 +56,10 @@ var create = function(db, opts) {
     delete cbs[head]
   }
 
-  var index = function(data, enc, cb) {
+  var index = function(data, e, cb) {
     var entry = messages.Entry.decode(data.entry)
     var key = entry.key
-    var d = postupdate !== next || preupdate !== next ? {peer:data.peer, seq:data.seq, key:key, value:enc.decode(entry)} : null
+    var d = postupdate !== next || preupdate !== next ? {peer:data.peer, seq:data.seq, key:key, value:enc.decode(entry.value)} : null
 
     preupdate(d, function(err) {
       if (err) return cb(err)
