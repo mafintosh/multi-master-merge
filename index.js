@@ -42,7 +42,7 @@ var create = function(db, opts) {
   var subs = sublevel(db)
   var latest = subs.sublevel('latest')
   var seqs = subs.sublevel('seqs')
-  var log = scuttleup(subs.sublevel('log'), opts)
+  var log = scuttleup(subs.sublevel('log'), {id: opts.id})
   var fdb = fwdb(db) // sublevel blows up if we pass in a sublevel :(
 
   var preupdate = opts.preupdate || next
@@ -56,10 +56,10 @@ var create = function(db, opts) {
     delete cbs[head]
   }
 
-  var index = function(data, enc, cb) {
+  var index = function(data, _, cb) {
     var entry = messages.Entry.decode(data.entry)
     var key = entry.key
-    var d = postupdate !== next || preupdate !== next ? {peer:data.peer, seq:data.seq, key:key, value:enc.decode(entry)} : null
+    var d = postupdate !== next || preupdate !== next ? {peer:data.peer, seq:data.seq, key:key, value:enc.decode(entry.value)} : null
 
     preupdate(d, function(err) {
       if (err) return cb(err)

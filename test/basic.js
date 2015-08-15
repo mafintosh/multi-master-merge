@@ -109,3 +109,16 @@ tape('key stream', function(t) {
     })
   })
 })
+
+tape('postupdate', function (t) {
+  var postupdate = function (data, cb) {
+    t.same(data.key, 'hello')
+    t.same(data.value, 'world')
+    cb(null, data)
+  }
+
+  var db = mmm(level(), {encoding:'json', postupdate: postupdate})
+  db.put('hello', 'world', function () {
+    t.end()
+  })
+})
