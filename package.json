@@ -15,10 +15,11 @@
   },
   "devDependencies": {
     "level-test": "^1.6.6",
+    "standard": "^5.1.0",
     "tape": "^3.0.0"
   },
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "standard && tape test/*.js"
   },
   "browserify": {
     "transform": [
