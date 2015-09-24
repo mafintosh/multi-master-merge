@@ -162,7 +162,7 @@ var create = function (db, opts) {
     if (!opts) opts = {}
     var e = opts.encoding ? encoders(opts.encoding) : enc
 
-    var stream = log.createReadStream({ valueEncoding: 'binary' })
+    var stream = log.createReadStream({ valueEncoding: 'binary', live: opts.live })
     var fmt = through.obj(function (data, enc, cb) {
       var entry = messages.Entry.decode(data.entry)
       cb(null, { key: entry.key, value: e.decode(entry.value) })
