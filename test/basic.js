@@ -111,6 +111,30 @@ tape('key stream', function (t) {
   })
 })
 
+tape('log stream', function (t) {
+  var db = create()
+
+  db.put('hello', {hello: 'world'}, function (err) {
+    t.notOk(err)
+    db.put('hej', {hej: 'verden'}, function (err) {
+      t.notOk(err)
+
+      var i = 0
+      var strm = db.createLogStream()
+      strm.on('data', function (dta) {
+        if (++i === 1) {
+          t.equal(dta.value.hello, 'world')
+        } else {
+          t.equal(dta.value.hej, 'verden')
+        }
+      })
+      strm.on('end', function () {
+        t.end()
+      })
+    })
+  })
+})
+
 tape('postupdate', function (t) {
   var postupdate = function (data, cb) {
     t.same(data.key, 'hello')

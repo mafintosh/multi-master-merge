@@ -158,6 +158,18 @@ var create = function (db, opts) {
     return link(keys, fmt)
   }
 
+  that.createLogStream = function (opts) {
+    if (!opts) opts = {}
+    var e = opts.encoding ? encoders(opts.encoding) : enc
+
+    var stream = log.createReadStream({ valueEncoding: 'binary' })
+    var fmt = through.obj(function (data, enc, cb) {
+      var entry = messages.Entry.decode(data.entry)
+      cb(null, { key: entry.key, value: e.decode(entry.value) })
+    })
+    return link(stream, fmt)
+  }
+
   that.put = function (key, val, opts, cb) {
     if (typeof opts === 'function') return that.put(key, val, null, opts)
     if (!opts) opts = {}
