@@ -116,7 +116,11 @@ You can pass in `gt`,`gte`,`lt`,`lte` options similar to levelup.
 
 #### mdb.createKeyStream([options])
 
-Similar to `createReadSTream` but only returns keys
+Similar to `createReadStream` but only returns keys
+
+#### mdb.createLogStream([options])
+
+Get a stream of all `{key:key, value:doc}` pairs in the log (all revisions of docs). Works about 10x faster than createValueStream, but returns all revisions, even merged ones.
 
 #### mdb.merge(key, docs, newValue, [cb])
 
