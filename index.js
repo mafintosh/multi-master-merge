@@ -85,6 +85,13 @@ var create = function (db, opts) {
         }, function (err) {
           if (err) return cb(err)
           seqs.put(data.peer, '' + data.seq, function () {
+            if (opts.gc) {
+              heads.forEach(function (key) {
+                var parts = split(key)
+                log.del(parts[0], parts[1])
+              })
+            }
+
             postupdate(d, function (err) {
               if (data.peer === log.id) call(head = data.seq)
               cb(err)
